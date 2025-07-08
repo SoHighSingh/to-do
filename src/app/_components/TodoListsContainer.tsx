@@ -30,14 +30,14 @@ export default function TodoListsContainer() {
   const [selectedListId, setSelectedListId] = useState<string | null>(null);
 
   // Fetch all todo lists
-  const { data: todoLists = [], isLoading, error } = api.todo.getAllLists.useQuery(undefined, {
+  const queryResult = api.todo.getAllLists.useQuery(undefined, {
     refetchOnWindowFocus: false,
     retry: 1,
-  }) as {
-    data: TodoList[];
-    isLoading: boolean;
-    error: any;
-  };
+  });
+
+  const todoLists = queryResult.data as TodoList[] | undefined;
+  const isLoading = queryResult.isLoading;
+  const error = queryResult.error as Error | null;
 
   if (isLoading) {
     return (
@@ -69,6 +69,8 @@ export default function TodoListsContainer() {
     setShowCreateForm(false);
   };
 
+  const todoListsData = todoLists ?? [];
+
   return (
     <div className="w-full max-w-4xl space-y-4">
 
@@ -81,9 +83,9 @@ export default function TodoListsContainer() {
       )}
 
       {/* Todo Lists */}
-      {todoLists.length > 0 ? (
+      {todoListsData.length > 0 ? (
         <div className="space-y-4 max-h-96 overflow-y-auto">
-          {todoLists.map((list) => (
+          {todoListsData.map((list) => (
             <TodoListCard
               key={list.id}
               list={list}
@@ -104,7 +106,7 @@ export default function TodoListsContainer() {
         </div>
       ) : (
         <div className="rounded-lg bg-white/20 p-8 text-center">
-          <p className="text-gray-600 mb-4">You don't have any todo lists yet.</p>
+          <p className="text-gray-600 mb-4">You don&apos;t have any todo lists yet.</p>
           {!showCreateForm && (
             <button
               onClick={() => setShowCreateForm(true)}
