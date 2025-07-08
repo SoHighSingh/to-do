@@ -15,16 +15,35 @@ datasource db {
     directUrl = env("DIRECT_URL")
 }
 
-model Post {
-    id        Int      @id @default(autoincrement())
-    name      String
-    createdAt DateTime @default(now())
-    updatedAt DateTime @updatedAt
-
-    createdBy   User   @relation(fields: [createdById], references: [id])
+model TodoList {
+    id          String     @id @default(cuid())
+    title       String
+    description String?    // Optional description
+    createdAt   DateTime   @default(now())
+    updatedAt   DateTime   @updatedAt
+    
+    // Relations
+    createdBy   User       @relation(fields: [createdById], references: [id], onDelete: Cascade)
     createdById String
+    todoItems   TodoItem[] // One list can have many items
+    
+    @@index([createdById]) // Makes finding user's lists faster
+    @@index([title])       // Makes searching by title faster
+}
 
-    @@index([name])
+model TodoItem {
+    id          String   @id @default(cuid())
+    title       String
+    completed   Boolean  @default(false)
+    createdAt   DateTime @default(now())
+    updatedAt   DateTime @updatedAt
+    
+    // Relations
+    todoList   TodoList @relation(fields: [todoListId], references: [id], onDelete: Cascade)
+    todoListId String
+    
+    @@index([todoListId])   // Makes finding list's items faster
+    @@index([completed])    // Makes filtering by completion status faster
 }
 
 // Necessary for Next auth
@@ -56,14 +75,14 @@ model Session {
 }
 
 model User {
-    id            String    @id @default(cuid())
+    id            String      @id @default(cuid())
     name          String?
-    email         String?   @unique
+    email         String?     @unique
     emailVerified DateTime?
     image         String?
     accounts      Account[]
     sessions      Session[]
-    posts         Post[]
+    todoLists     TodoList[]
 }
 
 model VerificationToken {
