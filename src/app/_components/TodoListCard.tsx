@@ -93,7 +93,7 @@ export default function TodoListCard({ list, isExpanded, onClick }: TodoListCard
   const totalCount = list.todoItems.length;
 
   return (
-    <div className="rounded-lg bg-white/20 p-4 transition-all hover:bg-white/25">
+    <div className="w-90 rounded-lg bg-white/20 p-4 transition-all hover:bg-white/25">
       {/* List Header */}
       <div 
         className="cursor-pointer flex items-center justify-between"
@@ -130,7 +130,7 @@ export default function TodoListCard({ list, isExpanded, onClick }: TodoListCard
 
       {/* Expanded Content */}
       {isExpanded && (
-        <div className="mt-4 space-y-3">
+        <div className="mt-3 space-y-3">
           {/* Todo Items */}
           {list.todoItems.length > 0 ? (
             <div className="space-y-2">
