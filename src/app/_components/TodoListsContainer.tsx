@@ -41,14 +41,8 @@ export default function TodoListsContainer() {
 
   if (isLoading) {
     return (
-      <div className="w-full max-w-4xl rounded-lg bg-white/20 p-6">
-        <div className="animate-pulse">
-          <div className="h-6 bg-white/20 rounded mb-4"></div>
-          <div className="space-y-3">
-            <div className="h-20 bg-white/10 rounded"></div>
-            <div className="h-20 bg-white/10 rounded"></div>
-          </div>
-        </div>
+      <div className="w-full max-w-4xl space-y-4">
+        <p>Loading...</p>
       </div>
     );
   }
