@@ -62,7 +62,7 @@ export default function CreateListForm({ onSuccess, onCancel }: CreateListFormPr
       <form onSubmit={handleSubmit} className="space-y-4">
         <div>
           <label htmlFor="title" className="block text-sm font-medium mb-2">
-            List Title *
+            List Title
           </label>
           <input
             id="title"
@@ -80,7 +80,7 @@ export default function CreateListForm({ onSuccess, onCancel }: CreateListFormPr
           )}
         </div>
 
-        <div>
+        {/* <div>
           <label htmlFor="description" className="block text-sm font-medium mb-2">
             Description (optional)
           </label>
@@ -101,7 +101,7 @@ export default function CreateListForm({ onSuccess, onCancel }: CreateListFormPr
           <p className="text-xs text-gray-600 mt-1">
             {description.length}/500 characters
           </p>
-        </div>
+        </div> */}
         
         <div className="flex gap-3">
           <button
