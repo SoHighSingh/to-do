@@ -20,8 +20,8 @@ export default async function Home() {
           {session?.user ? (
             // Signed-in user view
             <>
-              <h1 className="text-5xl font-extrabold tracking-tight sm:text-[5rem]">
-                Your <span className="text-[hsl(33,100.00%,60.20%)]">To-Do Lists</span>
+              <h1 className="text-center text-5xl font-extrabold tracking-tight sm:text-[5rem]">
+                Your <span className="text-[hsl(33,100.00%,60.20%)]">To-Do Lists</span>.
               </h1>
               
               <div className="flex flex-col items-center gap-4">
