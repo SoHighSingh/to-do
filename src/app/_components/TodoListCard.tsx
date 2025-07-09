@@ -2,6 +2,8 @@
 
 import { useState } from "react";
 import { api } from "~/trpc/react";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faTrash, faChevronDown, faChevronUp } from "@fortawesome/free-solid-svg-icons";
 
 interface TodoItem {
   id: string;
@@ -102,7 +104,7 @@ export default function TodoListCard({ list, isExpanded, onClick }: TodoListCard
           {list.description && (
             <p className="text-sm text-gray-600 mt-1">{list.description}</p>
           )}
-          <div className="flex items-center gap-4 mt-2 text-sm text-gray-600">
+          <div className="flex items-center gap-4 mt-3 text-sm text-gray-600">
             <span>{totalCount} items</span>
             <span>{completedCount}/{totalCount} completed</span>
             <span>{new Date(list.createdAt).toLocaleDateString()}</span>
@@ -115,13 +117,13 @@ export default function TodoListCard({ list, isExpanded, onClick }: TodoListCard
               e.stopPropagation();
               handleDeleteList();
             }}
-            className="text-red-500 hover:text-red-700 px-2 py-1 text-sm"
+            className="w-full py-2 text-center text-gray-600 px-2 hover:text-gray-700 cursor-pointer"
             disabled={deleteListMutation.isPending}
           >
-            Delete
+            <FontAwesomeIcon icon={faTrash} />
           </button>
           <span className="text-gray-400">
-            {isExpanded ? "▼" : "▶"}
+            {isExpanded ? <FontAwesomeIcon icon={faChevronUp} /> : <FontAwesomeIcon icon={faChevronDown} />}
           </span>
         </div>
       </div>
@@ -139,7 +141,7 @@ export default function TodoListCard({ list, isExpanded, onClick }: TodoListCard
                 >
                   <button
                     onClick={() => handleToggleItem(item.id)}
-                    className={`w-5 h-5 rounded border-2 flex items-center justify-center ${
+                    className={`w-5 h-5 rounded border-2 flex items-center justify-center cursor-pointer ${
                       item.completed
                         ? "bg-green-500 border-green-500 text-white"
                         : "border-gray-400 hover:border-gray-600"
@@ -159,7 +161,7 @@ export default function TodoListCard({ list, isExpanded, onClick }: TodoListCard
                   
                   <button
                     onClick={() => handleDeleteItem(item.id)}
-                    className="text-red-500 hover:text-red-700 text-sm px-2"
+                    className="text-red-500 hover:text-red-700 text-sm px-2 hover:font-bold cursor-pointer"
                     disabled={deleteItemMutation.isPending}
                   >
                     ✕
@@ -203,7 +205,7 @@ export default function TodoListCard({ list, isExpanded, onClick }: TodoListCard
           ) : (
             <button
               onClick={() => setIsAddingItem(true)}
-              className="w-full py-2 text-center text-gray-600 hover:text-gray-800 border-2 border-dashed border-gray-400 hover:border-gray-600 rounded"
+              className="w-full py-2 text-center text-gray-600 hover:text-gray-800 border-2 border-dashed border-gray-400 hover:border-gray-600 rounded cursor-pointer"
             >
               + Add item
             </button>

@@ -43,7 +43,7 @@ export default async function Home() {
           ) : (
             // Signed-out user view
             <>
-              <h1 className="text-5xl font-extrabold tracking-tight sm:text-[5rem]">
+              <h1 className="text-center text-5xl font-extrabold tracking-tight sm:text-[5rem]">
                 Create your <span className="text-[hsl(33,100.00%,60.20%)]">To-Do List</span>.
               </h1>
               
