@@ -36,29 +36,135 @@ export default function TodoListCard({ list, isExpanded, onClick }: TodoListCard
 
   const utils = api.useUtils();
 
-  // Mutations
+  // Mutations with optimistic updates
   const addItemMutation = api.todo.addItem.useMutation({
+    onMutate: async ({ listId, title }) => {
+      // Cancel outgoing refetches so they don't overwrite our optimistic update
+      await utils.todo.getAllLists.cancel();
+
+      // Get current data
+      const previousLists = utils.todo.getAllLists.getData();
+
+      // Create optimistic item
+      const optimisticItem: TodoItem = {
+        id: `temp-${Date.now()}`, // Temporary ID
+        title: title,
+        completed: false,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+        todoListId: listId,
+      };
+
+      // Optimistically update the cache
+      utils.todo.getAllLists.setData(undefined, (oldData) => {
+        if (!oldData) return oldData;
+        
+        return oldData.map(todoList => 
+          todoList.id === listId 
+            ? { ...todoList, todoItems: [...todoList.todoItems, optimisticItem] }
+            : todoList
+        );
+      });
+
+      // Return context for rollback
+      return { previousLists };
+    },
+    onError: (err, variables, context) => {
+      // Rollback on error
+      if (context?.previousLists) {
+        utils.todo.getAllLists.setData(undefined, context.previousLists);
+      }
+    },
     onSuccess: () => {
-      void utils.todo.getAllLists.invalidate();
       setNewItemTitle("");
       setIsAddingItem(false);
+    },
+    onSettled: () => {
+      // Always refetch after mutation settles
+      void utils.todo.getAllLists.invalidate();
     },
   });
 
   const toggleItemMutation = api.todo.toggleItem.useMutation({
-    onSuccess: () => {
+    onMutate: async ({ itemId }) => {
+      await utils.todo.getAllLists.cancel();
+
+      const previousLists = utils.todo.getAllLists.getData();
+
+      // Optimistically toggle the item
+      utils.todo.getAllLists.setData(undefined, (oldData) => {
+        if (!oldData) return oldData;
+        
+        return oldData.map(todoList => ({
+          ...todoList,
+          todoItems: todoList.todoItems.map(item => 
+            item.id === itemId 
+              ? { ...item, completed: !item.completed, updatedAt: new Date() }
+              : item
+          )
+        }));
+      });
+
+      return { previousLists };
+    },
+    onError: (err, variables, context) => {
+      if (context?.previousLists) {
+        utils.todo.getAllLists.setData(undefined, context.previousLists);
+      }
+    },
+    onSettled: () => {
       void utils.todo.getAllLists.invalidate();
     },
   });
 
   const deleteItemMutation = api.todo.deleteItem.useMutation({
-    onSuccess: () => {
+    onMutate: async ({ itemId }) => {
+      await utils.todo.getAllLists.cancel();
+
+      const previousLists = utils.todo.getAllLists.getData();
+
+      // Optimistically remove the item
+      utils.todo.getAllLists.setData(undefined, (oldData) => {
+        if (!oldData) return oldData;
+        
+        return oldData.map(todoList => ({
+          ...todoList,
+          todoItems: todoList.todoItems.filter(item => item.id !== itemId)
+        }));
+      });
+
+      return { previousLists };
+    },
+    onError: (err, variables, context) => {
+      if (context?.previousLists) {
+        utils.todo.getAllLists.setData(undefined, context.previousLists);
+      }
+    },
+    onSettled: () => {
       void utils.todo.getAllLists.invalidate();
     },
   });
 
   const deleteListMutation = api.todo.deleteList.useMutation({
-    onSuccess: () => {
+    onMutate: async ({ listId }) => {
+      await utils.todo.getAllLists.cancel();
+
+      const previousLists = utils.todo.getAllLists.getData();
+
+      // Optimistically remove the list
+      utils.todo.getAllLists.setData(undefined, (oldData) => {
+        if (!oldData) return oldData;
+        return oldData.filter(todoList => todoList.id !== listId);
+      });
+
+      return { previousLists };
+    },
+    onError: (err, variables, context) => {
+      if (context?.previousLists) {
+        utils.todo.getAllLists.setData(undefined, context.previousLists);
+      }
+    },
+    onSettled: () => {
       void utils.todo.getAllLists.invalidate();
     },
   });
@@ -122,14 +228,18 @@ export default function TodoListCard({ list, isExpanded, onClick }: TodoListCard
           >
             <FontAwesomeIcon icon={faTrash} />
           </button>
-          <span className="text-gray-400">
+          <span className="text-gray-400 transition-transform duration-300 ease-in-out">
             {isExpanded ? <FontAwesomeIcon icon={faChevronUp} /> : <FontAwesomeIcon icon={faChevronDown} />}
           </span>
         </div>
       </div>
 
       {/* Expanded Content */}
-      {isExpanded && (
+      <div 
+        className={`transition-all duration-400 ease-in-out overflow-hidden ${
+          isExpanded ? 'max-h-96 opacity-100' : 'max-h-0 opacity-0'
+        }`}
+      >
         <div className="mt-3 space-y-3">
           {/* Todo Items */}
           {list.todoItems.length > 0 ? (
@@ -211,7 +321,7 @@ export default function TodoListCard({ list, isExpanded, onClick }: TodoListCard
             </button>
           )}
         </div>
-      )}
+      </div>
     </div>
   );
 }
