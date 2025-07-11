@@ -36,135 +36,29 @@ export default function TodoListCard({ list, isExpanded, onClick }: TodoListCard
 
   const utils = api.useUtils();
 
-  // Mutations with optimistic updates
+  // Mutations
   const addItemMutation = api.todo.addItem.useMutation({
-    onMutate: async ({ listId, title }) => {
-      // Cancel outgoing refetches so they don't overwrite our optimistic update
-      await utils.todo.getAllLists.cancel();
-
-      // Get current data
-      const previousLists = utils.todo.getAllLists.getData();
-
-      // Create optimistic item
-      const optimisticItem: TodoItem = {
-        id: `temp-${Date.now()}`, // Temporary ID
-        title: title,
-        completed: false,
-        createdAt: new Date(),
-        updatedAt: new Date(),
-        todoListId: listId,
-      };
-
-      // Optimistically update the cache
-      utils.todo.getAllLists.setData(undefined, (oldData) => {
-        if (!oldData) return oldData;
-        
-        return oldData.map(todoList => 
-          todoList.id === listId 
-            ? { ...todoList, todoItems: [...todoList.todoItems, optimisticItem] }
-            : todoList
-        );
-      });
-
-      // Return context for rollback
-      return { previousLists };
-    },
-    onError: (err, variables, context) => {
-      // Rollback on error
-      if (context?.previousLists) {
-        utils.todo.getAllLists.setData(undefined, context.previousLists);
-      }
-    },
     onSuccess: () => {
+      void utils.todo.getAllLists.invalidate();
       setNewItemTitle("");
       setIsAddingItem(false);
-    },
-    onSettled: () => {
-      // Always refetch after mutation settles
-      void utils.todo.getAllLists.invalidate();
     },
   });
 
   const toggleItemMutation = api.todo.toggleItem.useMutation({
-    onMutate: async ({ itemId }) => {
-      await utils.todo.getAllLists.cancel();
-
-      const previousLists = utils.todo.getAllLists.getData();
-
-      // Optimistically toggle the item
-      utils.todo.getAllLists.setData(undefined, (oldData) => {
-        if (!oldData) return oldData;
-        
-        return oldData.map(todoList => ({
-          ...todoList,
-          todoItems: todoList.todoItems.map(item => 
-            item.id === itemId 
-              ? { ...item, completed: !item.completed, updatedAt: new Date() }
-              : item
-          )
-        }));
-      });
-
-      return { previousLists };
-    },
-    onError: (err, variables, context) => {
-      if (context?.previousLists) {
-        utils.todo.getAllLists.setData(undefined, context.previousLists);
-      }
-    },
-    onSettled: () => {
+    onSuccess: () => {
       void utils.todo.getAllLists.invalidate();
     },
   });
 
   const deleteItemMutation = api.todo.deleteItem.useMutation({
-    onMutate: async ({ itemId }) => {
-      await utils.todo.getAllLists.cancel();
-
-      const previousLists = utils.todo.getAllLists.getData();
-
-      // Optimistically remove the item
-      utils.todo.getAllLists.setData(undefined, (oldData) => {
-        if (!oldData) return oldData;
-        
-        return oldData.map(todoList => ({
-          ...todoList,
-          todoItems: todoList.todoItems.filter(item => item.id !== itemId)
-        }));
-      });
-
-      return { previousLists };
-    },
-    onError: (err, variables, context) => {
-      if (context?.previousLists) {
-        utils.todo.getAllLists.setData(undefined, context.previousLists);
-      }
-    },
-    onSettled: () => {
+    onSuccess: () => {
       void utils.todo.getAllLists.invalidate();
     },
   });
 
   const deleteListMutation = api.todo.deleteList.useMutation({
-    onMutate: async ({ listId }) => {
-      await utils.todo.getAllLists.cancel();
-
-      const previousLists = utils.todo.getAllLists.getData();
-
-      // Optimistically remove the list
-      utils.todo.getAllLists.setData(undefined, (oldData) => {
-        if (!oldData) return oldData;
-        return oldData.filter(todoList => todoList.id !== listId);
-      });
-
-      return { previousLists };
-    },
-    onError: (err, variables, context) => {
-      if (context?.previousLists) {
-        utils.todo.getAllLists.setData(undefined, context.previousLists);
-      }
-    },
-    onSettled: () => {
+    onSuccess: () => {
       void utils.todo.getAllLists.invalidate();
     },
   });
@@ -199,7 +93,7 @@ export default function TodoListCard({ list, isExpanded, onClick }: TodoListCard
   const totalCount = list.todoItems.length;
 
   return (
-    <div className="w-90 rounded-lg bg-white/20 p-4 transition-all hover:bg-white/25">
+    <div className="rounded-lg bg-white/20 p-4 transition-all hover:bg-white/25">
       {/* List Header */}
       <div 
         className="cursor-pointer flex items-center justify-between"
@@ -210,7 +104,7 @@ export default function TodoListCard({ list, isExpanded, onClick }: TodoListCard
           {list.description && (
             <p className="text-sm text-gray-600 mt-1">{list.description}</p>
           )}
-          <div className="flex items-center gap-4 mt-3 text-sm text-gray-600">
+          <div className="flex items-center gap-5 mt-3 text-sm text-gray-600">
             <span>{totalCount} items</span>
             <span>{completedCount}/{totalCount} completed</span>
             <span>{new Date(list.createdAt).toLocaleDateString()}</span>
@@ -228,7 +122,7 @@ export default function TodoListCard({ list, isExpanded, onClick }: TodoListCard
           >
             <FontAwesomeIcon icon={faTrash} />
           </button>
-          <span className="text-gray-400 transition-transform duration-300 ease-in-out">
+          <span className="text-gray-400">
             {isExpanded ? <FontAwesomeIcon icon={faChevronUp} /> : <FontAwesomeIcon icon={faChevronDown} />}
           </span>
         </div>
@@ -236,7 +130,7 @@ export default function TodoListCard({ list, isExpanded, onClick }: TodoListCard
 
       {/* Expanded Content */}
       <div 
-        className={`transition-all duration-400 ease-in-out overflow-hidden ${
+        className={`transition-all duration-300 ease-in-out overflow-hidden ${
           isExpanded ? 'max-h-96 opacity-100' : 'max-h-0 opacity-0'
         }`}
       >
@@ -291,7 +185,7 @@ export default function TodoListCard({ list, isExpanded, onClick }: TodoListCard
                 value={newItemTitle}
                 onChange={(e) => setNewItemTitle(e.target.value)}
                 placeholder="Enter item title..."
-                className="flex-1 px-3 py-2 rounded bg-white/20 border border-white/30 focus:outline-none focus:border-white/50"
+                className="w-52 px-3 py-2 rounded bg-white/20 border border-white/30 focus:outline-none focus:border-white/50"
                 autoFocus
               />
               <button
