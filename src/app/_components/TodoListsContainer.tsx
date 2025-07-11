@@ -100,7 +100,7 @@ export default function TodoListsContainer() {
         </div>
       ) : (
         <div className="rounded-lg bg-white/20 p-8 text-center">
-          <p className="text-gray-600 mb-4">You don&apos;t have any todo lists yet.</p>
+          <p className="text-gray-600 mb-4">You don&apos;t have any To-Do lists yet.</p>
           {!showCreateForm && (
             <button
               onClick={() => setShowCreateForm(true)}

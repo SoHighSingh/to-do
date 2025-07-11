@@ -57,7 +57,7 @@ export default function CreateListForm({ onSuccess, onCancel }: CreateListFormPr
 
   return (
     <div className="rounded-lg bg-white/30 p-6">
-      <h3 className="text-lg font-semibold mb-4">Create New To-do List</h3>
+      <h3 className="text-lg font-semibold mb-4">Create New To-Do List</h3>
       
       <form onSubmit={handleSubmit} className="space-y-4">
         <div>
