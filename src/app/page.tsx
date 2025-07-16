@@ -13,7 +13,7 @@ export default async function Home() {
 
   return (
     <HydrateClient>
-      <main className="flex min-h-screen flex-col items-center justify-center bg-gradient-to-b from-[#f7ebab] to-[#ffc054] text-[#383838]">
+      <main className="flex min-h-screen flex-col items-center justify-center bg-gradient-to-b from-[#FF69B4] to-[#FFC0CB] ">
         <div className="container flex flex-col items-center justify-center gap-12 px-4 py-16">
           
           {/* Different headings based on auth status */}
@@ -21,7 +21,7 @@ export default async function Home() {
             // Signed-in user view
             <>
               <h1 className="text-center text-5xl font-extrabold tracking-tight sm:text-[5rem]">
-                Your <span className="text-[hsl(33,100.00%,60.20%)]">To-Do Lists</span>.
+                Your <span className="text-[#ffd4fc]">To-Do Lists</span>.
               </h1>
               
               <div className="flex flex-col items-center gap-4">
@@ -44,11 +44,11 @@ export default async function Home() {
             // Signed-out user view
             <>
               <h1 className="text-center text-5xl font-extrabold tracking-tight sm:text-[5rem]">
-                Create your <span className="text-[hsl(33,100.00%,60.20%)]">To-Do List</span>.
+                Create your <span className="text-[#ffd4fc]">To-Do List</span>.
               </h1>
               
               <div className="flex flex-col items-center gap-2">
-                <p className="text-2xl text-[#383838]">Get Started</p>
+                <p className="text-2xl">Get Started</p>
 
                 <div className="flex flex-col items-center justify-center gap-4">
                   <Link
